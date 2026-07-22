@@ -1,0 +1,15 @@
+services:
+  cogeco-sagecom-exporter:
+    build: .
+    env_file:
+      - .env
+    environment:
+      LISTEN_PORT: "9488"
+      PROBE_TARGETS: "1.1.1.1:443,8.8.8.8:443"
+      COLLECT_DOCSIS: "true"
+    ports:
+      - "9488:9488"
+    restart: unless-stopped
+    read_only: true
+    security_opt:
+      - no-new-privileges:true

@@ -1,0 +1,411 @@
+{
+  "name": "Cogeco Modem",
+  "interval": 60,
+  "rules": [
+    {
+      "uid": "cogeco-gui-down",
+      "title": "Cogeco — Modem GUI unreachable",
+      "condition": "Threshold",
+      "data": [
+        {
+          "refId": "A",
+          "relativeTimeRange": {"from": 300, "to": 0},
+          "datasourceUid": "grafanacloud-prom",
+          "model": {
+            "datasource": {"type": "prometheus", "uid": "grafanacloud-prom"},
+            "expr": "cogeco_sagemcom_gui_up",
+            "instant": true,
+            "refId": "A"
+          }
+        },
+        {
+          "refId": "Threshold",
+          "datasourceUid": "-100",
+          "model": {
+            "conditions": [
+              {
+                "evaluator": {"params": [1], "type": "lt"},
+                "operator": {"type": "and"},
+                "query": {"params": ["A"]},
+                "reducer": {"params": [], "type": "last"},
+                "type": "query"
+              }
+            ],
+            "datasource": {"type": "__expr__", "uid": "-100"},
+            "expression": "A",
+            "refId": "Threshold",
+            "type": "threshold"
+          }
+        }
+      ],
+      "noDataState": "Alerting",
+      "execErrState": "Error",
+      "for": "3m",
+      "labels": {"severity": "critical", "team": "homelab", "service": "cogeco"},
+      "annotations": {
+        "summary": "Cogeco modem management GUI is unreachable",
+        "description": "cogeco_sagemcom_gui_up has been 0 for 3m. The exporter cannot reach https://192.168.100.1/2.0/gui/.\n\nCheck modem power, LAN path to the bridge management address, and the exporter host."
+      }
+    },
+    {
+      "uid": "cogeco-docsis-scrape-down",
+      "title": "Cogeco — DOCSIS scrape failed",
+      "condition": "Threshold",
+      "data": [
+        {
+          "refId": "A",
+          "relativeTimeRange": {"from": 300, "to": 0},
+          "datasourceUid": "grafanacloud-prom",
+          "model": {
+            "datasource": {"type": "prometheus", "uid": "grafanacloud-prom"},
+            "expr": "cogeco_sagemcom_docsis_scrape_up",
+            "instant": true,
+            "refId": "A"
+          }
+        },
+        {
+          "refId": "Threshold",
+          "datasourceUid": "-100",
+          "model": {
+            "conditions": [
+              {
+                "evaluator": {"params": [1], "type": "lt"},
+                "operator": {"type": "and"},
+                "query": {"params": ["A"]},
+                "reducer": {"params": [], "type": "last"},
+                "type": "query"
+              }
+            ],
+            "datasource": {"type": "__expr__", "uid": "-100"},
+            "expression": "A",
+            "refId": "Threshold",
+            "type": "threshold"
+          }
+        }
+      ],
+      "noDataState": "NoData",
+      "execErrState": "Error",
+      "for": "5m",
+      "labels": {"severity": "warning", "team": "homelab", "service": "cogeco"},
+      "annotations": {
+        "summary": "DOCSIS JSON-RPC scrape is failing",
+        "description": "cogeco_sagemcom_docsis_scrape_up has been 0 for 5m. GUI may still be up, but channel tables are not collecting.\n\nCheck modem login lockouts, MODEM_USERNAME/PASSWORD, and JSON-RPC session errors."
+      }
+    },
+    {
+      "uid": "cogeco-internet-path-down",
+      "title": "Cogeco — Internet path probes down",
+      "condition": "Threshold",
+      "data": [
+        {
+          "refId": "A",
+          "relativeTimeRange": {"from": 300, "to": 0},
+          "datasourceUid": "grafanacloud-prom",
+          "model": {
+            "datasource": {"type": "prometheus", "uid": "grafanacloud-prom"},
+            "expr": "min(cogeco_sagemcom_internet_probe_up)",
+            "instant": true,
+            "refId": "A"
+          }
+        },
+        {
+          "refId": "Threshold",
+          "datasourceUid": "-100",
+          "model": {
+            "conditions": [
+              {
+                "evaluator": {"params": [1], "type": "lt"},
+                "operator": {"type": "and"},
+                "query": {"params": ["A"]},
+                "reducer": {"params": [], "type": "last"},
+                "type": "query"
+              }
+            ],
+            "datasource": {"type": "__expr__", "uid": "-100"},
+            "expression": "A",
+            "refId": "Threshold",
+            "type": "threshold"
+          }
+        }
+      ],
+      "noDataState": "NoData",
+      "execErrState": "Error",
+      "for": "5m",
+      "labels": {"severity": "critical", "team": "homelab", "service": "cogeco"},
+      "annotations": {
+        "summary": "All Cogeco exporter public TCP probes are down",
+        "description": "min(cogeco_sagemcom_internet_probe_up) has been 0 for 5m. This is a symptom of WAN failure, not proof of a Cogeco outage by itself.\n\nCorrelate with modem GUI/DOCSIS status and UniFi WAN metrics before calling Cogeco."
+      }
+    },
+    {
+      "uid": "cogeco-modem-restarted",
+      "title": "Cogeco — Modem restarted",
+      "condition": "Threshold",
+      "data": [
+        {
+          "refId": "A",
+          "relativeTimeRange": {"from": 900, "to": 0},
+          "datasourceUid": "grafanacloud-prom",
+          "model": {
+            "datasource": {"type": "prometheus", "uid": "grafanacloud-prom"},
+            "expr": "delta(cogeco_sagemcom_uptime_seconds[15m])",
+            "instant": true,
+            "refId": "A"
+          }
+        },
+        {
+          "refId": "Threshold",
+          "datasourceUid": "-100",
+          "model": {
+            "conditions": [
+              {
+                "evaluator": {"params": [-60], "type": "lt"},
+                "operator": {"type": "and"},
+                "query": {"params": ["A"]},
+                "reducer": {"params": [], "type": "last"},
+                "type": "query"
+              }
+            ],
+            "datasource": {"type": "__expr__", "uid": "-100"},
+            "expression": "A",
+            "refId": "Threshold",
+            "type": "threshold"
+          }
+        }
+      ],
+      "noDataState": "NoData",
+      "execErrState": "Error",
+      "for": "0s",
+      "labels": {"severity": "warning", "team": "homelab", "service": "cogeco"},
+      "annotations": {
+        "summary": "Cogeco modem uptime decreased (restart detected)",
+        "description": "cogeco_sagemcom_uptime_seconds dropped by more than 60s over 15m. The modem rebooted or lost registration long enough to reset uptime.\n\nCheck DOCSIS SNR/power, uncorrectables, and whether this correlates with WAN loss."
+      }
+    },
+    {
+      "uid": "cogeco-ds-snr-low",
+      "title": "Cogeco — Downstream SNR low",
+      "condition": "Threshold",
+      "data": [
+        {
+          "refId": "A",
+          "relativeTimeRange": {"from": 300, "to": 0},
+          "datasourceUid": "grafanacloud-prom",
+          "model": {
+            "datasource": {"type": "prometheus", "uid": "grafanacloud-prom"},
+            "expr": "min(cogeco_sagemcom_docsis_downstream_snr_db)",
+            "instant": true,
+            "refId": "A"
+          }
+        },
+        {
+          "refId": "Threshold",
+          "datasourceUid": "-100",
+          "model": {
+            "conditions": [
+              {
+                "evaluator": {"params": [33], "type": "lt"},
+                "operator": {"type": "and"},
+                "query": {"params": ["A"]},
+                "reducer": {"params": [], "type": "last"},
+                "type": "query"
+              }
+            ],
+            "datasource": {"type": "__expr__", "uid": "-100"},
+            "expression": "A",
+            "refId": "Threshold",
+            "type": "threshold"
+          }
+        }
+      ],
+      "noDataState": "NoData",
+      "execErrState": "Error",
+      "for": "10m",
+      "labels": {"severity": "warning", "team": "homelab", "service": "cogeco"},
+      "annotations": {
+        "summary": "Lowest downstream SNR is {{ $values.A }} dB",
+        "description": "min(cogeco_sagemcom_docsis_downstream_snr_db) has been below 33 dB for 10m (QAM256 target is typically ≥33–35 dB).\n\nThis often indicates plant noise/ingress. Capture channel SNR/power before contacting Cogeco."
+      }
+    },
+    {
+      "uid": "cogeco-us-power-high",
+      "title": "Cogeco — Upstream power high",
+      "condition": "Threshold",
+      "data": [
+        {
+          "refId": "A",
+          "relativeTimeRange": {"from": 300, "to": 0},
+          "datasourceUid": "grafanacloud-prom",
+          "model": {
+            "datasource": {"type": "prometheus", "uid": "grafanacloud-prom"},
+            "expr": "max(cogeco_sagemcom_docsis_channel_power_dbmv{direction=\"upstream\"})",
+            "instant": true,
+            "refId": "A"
+          }
+        },
+        {
+          "refId": "Threshold",
+          "datasourceUid": "-100",
+          "model": {
+            "conditions": [
+              {
+                "evaluator": {"params": [51], "type": "gt"},
+                "operator": {"type": "and"},
+                "query": {"params": ["A"]},
+                "reducer": {"params": [], "type": "last"},
+                "type": "query"
+              }
+            ],
+            "datasource": {"type": "__expr__", "uid": "-100"},
+            "expression": "A",
+            "refId": "Threshold",
+            "type": "threshold"
+          }
+        }
+      ],
+      "noDataState": "NoData",
+      "execErrState": "Error",
+      "for": "10m",
+      "labels": {"severity": "warning", "team": "homelab", "service": "cogeco"},
+      "annotations": {
+        "summary": "Upstream power at {{ $values.A }} dBmV",
+        "description": "max upstream power has been above 51 dBmV for 10m. Levels near the modem's transmit ceiling often precede upstream timeouts / partial service.\n\nCheck splitters/cabling; escalate to Cogeco if persistent."
+      }
+    },
+    {
+      "uid": "cogeco-uncorrectables",
+      "title": "Cogeco — Uncorrectable codewords rising",
+      "condition": "Threshold",
+      "data": [
+        {
+          "refId": "A",
+          "relativeTimeRange": {"from": 600, "to": 0},
+          "datasourceUid": "grafanacloud-prom",
+          "model": {
+            "datasource": {"type": "prometheus", "uid": "grafanacloud-prom"},
+            "expr": "sum(rate(cogeco_sagemcom_docsis_downstream_codewords{type=\"uncorrectable\"}[10m]))",
+            "instant": true,
+            "refId": "A"
+          }
+        },
+        {
+          "refId": "Threshold",
+          "datasourceUid": "-100",
+          "model": {
+            "conditions": [
+              {
+                "evaluator": {"params": [0], "type": "gt"},
+                "operator": {"type": "and"},
+                "query": {"params": ["A"]},
+                "reducer": {"params": [], "type": "last"},
+                "type": "query"
+              }
+            ],
+            "datasource": {"type": "__expr__", "uid": "-100"},
+            "expression": "A",
+            "refId": "Threshold",
+            "type": "threshold"
+          }
+        }
+      ],
+      "noDataState": "NoData",
+      "execErrState": "Error",
+      "for": "10m",
+      "labels": {"severity": "warning", "team": "homelab", "service": "cogeco"},
+      "annotations": {
+        "summary": "Uncorrectable DOCSIS codewords are increasing",
+        "description": "sum(rate(...uncorrectable...[10m])) > 0 for 10m. Unlike OFDM correctable FEC chatter, uncorrectables mean frames are being lost.\n\nCapture per-channel SNR/power and open a Cogeco ticket if this persists with service impact."
+      }
+    },
+    {
+      "uid": "cogeco-channel-unlocked",
+      "title": "Cogeco — DOCSIS channel unlocked",
+      "condition": "Threshold",
+      "data": [
+        {
+          "refId": "A",
+          "relativeTimeRange": {"from": 300, "to": 0},
+          "datasourceUid": "grafanacloud-prom",
+          "model": {
+            "datasource": {"type": "prometheus", "uid": "grafanacloud-prom"},
+            "expr": "min(cogeco_sagemcom_docsis_channel_lock)",
+            "instant": true,
+            "refId": "A"
+          }
+        },
+        {
+          "refId": "Threshold",
+          "datasourceUid": "-100",
+          "model": {
+            "conditions": [
+              {
+                "evaluator": {"params": [1], "type": "lt"},
+                "operator": {"type": "and"},
+                "query": {"params": ["A"]},
+                "reducer": {"params": [], "type": "last"},
+                "type": "query"
+              }
+            ],
+            "datasource": {"type": "__expr__", "uid": "-100"},
+            "expression": "A",
+            "refId": "Threshold",
+            "type": "threshold"
+          }
+        }
+      ],
+      "noDataState": "NoData",
+      "execErrState": "Error",
+      "for": "5m",
+      "labels": {"severity": "warning", "team": "homelab", "service": "cogeco"},
+      "annotations": {
+        "summary": "At least one DOCSIS channel is unlocked",
+        "description": "min(cogeco_sagemcom_docsis_channel_lock) has been 0 for 5m. Partial channel loss often precedes flaky WAN or modem restarts."
+      }
+    },
+    {
+      "uid": "cogeco-exporter-stale",
+      "title": "Cogeco — Exporter metrics stale",
+      "condition": "Threshold",
+      "data": [
+        {
+          "refId": "A",
+          "relativeTimeRange": {"from": 1200, "to": 0},
+          "datasourceUid": "grafanacloud-prom",
+          "model": {
+            "datasource": {"type": "prometheus", "uid": "grafanacloud-prom"},
+            "expr": "time() - max(timestamp(cogeco_sagemcom_gui_up)) > 900",
+            "instant": true,
+            "refId": "A"
+          }
+        },
+        {
+          "refId": "Threshold",
+          "datasourceUid": "-100",
+          "model": {
+            "conditions": [
+              {
+                "evaluator": {"params": [0], "type": "gt"},
+                "operator": {"type": "and"},
+                "query": {"params": ["A"]},
+                "reducer": {"params": [], "type": "last"},
+                "type": "query"
+              }
+            ],
+            "datasource": {"type": "__expr__", "uid": "-100"},
+            "expression": "A",
+            "refId": "Threshold",
+            "type": "threshold"
+          }
+        }
+      ],
+      "noDataState": "Alerting",
+      "execErrState": "Error",
+      "for": "15m",
+      "labels": {"severity": "critical", "team": "homelab", "service": "cogeco"},
+      "annotations": {
+        "summary": "No cogeco-sagecom-exporter metrics for >15 minutes",
+        "description": "cogeco_sagemcom_gui_up has not been scraped in over 15 minutes. Modem health is blind.\n\nCheck docker compose on the exporter host and Alloy scrape for job custom/cogeco_sagemcom_exporter."
+      }
+    }
+  ]
+}
